@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDC Secundaria 3.1 | Sistema de Planificación 2026</title>
+    <meta name="description"
+        content="Sistema avanzado de generación de Planes de Desarrollo Curricular (PDC) para Educación Secundaria 2026.">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <!-- PANTALLA DE LOGIN -->
+    <div id="login-screen" class="login-container" style="display: none;">
+        <div class="login-card">
+            <h2>Acceso al Sistema</h2>
+            <p>Ingrese su contraseña para continuar</p>
+            <div class="input-group">
+                <input type="password" id="login-password" class="input-style" placeholder="Contraseña">
+                <button type="button" id="toggle-password" class="toggle-password-btn"
+                    title="Mostrar/Ocultar contraseña">👁️</button>
+            </div>
+            <div id="login-error" class="login-error"></div>
+            <button type="button" onclick="verificarLogin()" class="btn-primary mt-2">Ingresar</button>
+        </div>
+    </div>
+
+    <div class="max-w-5xl mx-auto" id="main-app" style="display: none;">
+
+        <!-- HEADER -->
+        <header>
+            <div class="mt-8">
+                <span class="version-badge">Versión Premiun V7.0• Secundaria 2026</span>
+            </div>
+            <h2 class="main-subtitle">Educación Secundaria Comunitaria Productiva</h2>
+            <h1 class="main-title">Plan de Desarrollo Curricular</h1>
+            <div class="header-line"></div>
+            <div class="info-banner">
+                <p><strong>Gestión Educativa Digital:</strong> Complete los campos a continuación. La IA generará el PDC
+                    completo directamente en la plataforma y podrá descargarlo en Word.</p>
+            </div>
+            <div class="doc-number-container">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Documento Nº</span>
+                <input type="number" id="numeroPDC" value="01" min="1">
+            </div>
+        </header>
+
+        <!-- FORMULARIO -->
+        <form id="pdcForm">
+
+            <!-- SECCIÓN 1: DATOS -->
+            <div class="section-card">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <h2 class="step-title">I. Datos Referenciales</h2>
+                </div>
+                <div class="grid-inputs">
+                    <div class="input-group">
+                        <label class="label-style">Distrito Educativo</label>
+                        <input type="text" id="distrito" class="input-style" placeholder="Ej. Cercado I">
+                    </div>
+                    <div class="input-group">
+                        <label class="label-style">Nivel de Formación</label>
+                        <select id="nivel" class="input-style">
+                            <option value="Secundario">Secundario</option>
+                            <option value="Alternativa">Alternativa</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label class="label-style">Maestra/o Responsable</label>
+                        <input type="text" id="maestro" class="input-style" placeholder="Nombre completo">
+                    </div>
+                    <div class="input-group">
+                        <label class="label-style">Área de Saberes</label>
+                        <input type="text" id="area" class="input-style" placeholder="Ej. Matemáticas">
+                    </div>
+                    <div class="input-group">
+                        <label class="label-style">Trimestre</label>
+                        <select id="trimestre" class="input-style">
+                            <option>Primer Trimestre</option>
+                            <option>Segundo Trimestre</option>
+                            <option>Tercer Trimestre</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label class="label-style">Fechas de Planificación</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="date" id="fechaInicio" class="input-style" style="flex: 1;">
+                            <input type="date" id="fechaFin" class="input-style" style="flex: 1;">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="label-style">Duración Generada</label>
+                        <input type="text" id="duracion" class="input-style bg-slate-100" readonly
+                            placeholder="Automático (Ej: DEL 01 DE SEPTIEMBRE AL 30 DE SEPTIEMBRE)">
+                    </div>
+                    <div class="input-group">
+                        <label class="label-style">Unidad Educativa</label>
+                        <input type="text" id="ue" class="input-style" placeholder="Nombre de la institución">
+                    </div>
+                    <div class="input-group">
+                        <label class="label-style">Año y Paralelo</label>
+                        <input type="text" id="escolaridad" class="input-style" placeholder="Ej. 1ro A, 1ro B">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 2: CONTENIDOS -->
+            <div class="section-card">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <h2 class="step-title">II. Organización de Contenidos</h2>
+                </div>
+                <div class="notificacion-contenidos">
+                    <p><strong>Nota de Formato:</strong> El sistema distingue automáticamente entre TÍTULOS (MAYÚSCULAS)
+                        y subtítulos (minúsculas).</p>
+                </div>
+                <div id="contenedor-semanas"></div>
+                <div class="text-center mt-4 mb-2" id="contenedor-btn-semana">
+                    <button type="button" class="btn-toggle" onclick="agregarSemana()" id="btn-agregar-semana">+ Agregar
+                        semana</button>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 3: ADAPTACIONES -->
+            <div class="section-card" style="border-left: 4px solid var(--primary-light);">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <h2 class="step-title">III. Adaptaciones Curriculares</h2>
+                </div>
+                <div class="grid-inputs">
+                    <div class="input-group">
+                        <label class="label-style">Tipo de Adaptación</label>
+                        <select id="categoriaAdaptacion" class="input-style">
+                            <option value="curricular">a) Adaptaciones curriculares (Dificultades leves)</option>
+                            <option value="significativa">b) Adaptaciones curriculares significativas</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label class="label-style">Condición / Estudiante</label>
+                        <div id="estudiantes-container" style="display: flex; flex-direction: column; gap: 8px;">
+                            <div class="estudiante-row" style="display: flex; gap: 8px; align-items: start;">
+                                <textarea id="tipoAdaptacion" class="input-style auto-expand" rows="1"
+                                    placeholder="Ej: Estudiante con Dislexia" style="flex: 1;"></textarea>
+                                <button type="button" id="btn-add-student" onclick="agregarEstudiante()"
+                                    class="btn-primary"
+                                    style="display: none; padding: 0 15px; font-size: 1.2rem; width: auto;"
+                                    title="Agregar estudiante">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTÓN PRINCIPAL -->
+            <button type="button" onclick="generarPDC()" class="btn-primary" id="btn-generar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                Generar PDC con IA
+            </button>
+        </form>
+
+        <!-- PANEL DE RESULTADOS -->
+        <div id="results-panel" style="display:none;">
+
+            <!-- LOG DE GENERACIÓN -->
+            <div class="section-card" id="log-card">
+                <div class="step-header">
+                    <div class="step-number"
+                        style="background: linear-gradient(135deg, var(--accent), var(--accent-light));">✦</div>
+                    <h2 class="step-title">Generación en Progreso...</h2>
+                </div>
+
+                <!-- BARRA DE PROGRESO -->
+                <div id="progress-container" style="margin-bottom: 1.5rem; display: none;">
+                    <div
+                        style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; align-items: center;">
+                        <span id="progress-text"
+                            style="color: var(--primary-light); font-weight: bold; font-size: 0.9rem;">Iniciando...</span>
+                        <div>
+                            <span id="api-provider-badge"
+                                style="display:none; background: rgba(99,102,241,0.2); border: 1px solid var(--primary-light); color: var(--primary-light); padding: 2px 8px; border-radius: 99px; font-size: 0.7rem; margin-right: 10px; font-weight: bold; text-transform: uppercase;"></span>
+                            <span id="progress-percent" style="color: var(--text-muted); font-size: 0.9rem;">0%</span>
+                        </div>
+                    </div>
+                    <div
+                        style="width: 100%; background: rgba(255, 255, 255, 0.1); border-radius: 99px; height: 10px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">
+                        <div id="progress-bar"
+                            style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); transition: width 0.5s ease; position: relative;">
+                            <div
+                                style="position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent); background-size: 20px 20px; animation: progress-stripes 1s linear infinite;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <style>
+                    @keyframes progress-stripes {
+                        0% {
+                            background-position: 20px 0;
+                        }
+
+                        100% {
+                            background-position: 0 0;
+                        }
+                    }
+                </style>
+
+                <div id="generation-log" class="generation-log"></div>
+            </div>
+
+
+            <!-- BOTONES DE ACCIÓN -->
+            <div id="action-buttons" class="action-buttons-container" style="display:none;">
+                <button onclick="descargarWord()" class="btn-download" id="btn-word">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="12" y1="18" x2="12" y2="12"></line>
+                        <line x1="9" y1="15" x2="15" y2="15"></line>
+                    </svg>
+                    Descargar PDC en Word
+                </button>
+                <button onclick="nuevoPDC()" class="btn-secondary-action">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="1 4 1 10 7 10"></polyline>
+                        <path d="M3.51 15a9 9 0 1 0 .49-3.51"></path>
+                    </svg>
+                    Nuevo PDC
+                </button>
+            </div>
+        </div>
+
+        <!-- MATERIAL DE APOYO / TUTORIAL -->
+        <div class="support-section">
+            <a href="https://vt.tiktok.com/ZS9xxeo8f/" target="_blank" rel="noopener noreferrer" class="btn-tutorial" title="Ver video de tutoría en TikTok">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.46 6.3 6.3 0 0 0 1.84-4.46V8.09a8.27 8.27 0 0 0 4.86 1.57v-3a4.8 4.8 0 0 1-.93.03z"/>
+                </svg>
+                <span>Video Tutoría Nivel Secundario</span>
+            </a>
+        </div>
+
+        <footer class="mt-12 text-center text-slate-500 text-xs pb-10">
+            <br>
+            <p>© 2026 Sistema de Apoyo al Magisterio - Educación Secundaria Comunitaria Productiva.</p>
+            <br>
+            <p class="font-bold text-slate-400">ICG Software Group | Soluciones Tecnológicas<br>Desarrollador: Prof.
+                Israel Condori Gonzales.</p>
+        </footer>
+    </div>
+
+    <script src="login.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
