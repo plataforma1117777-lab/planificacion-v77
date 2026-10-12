@@ -81,10 +81,20 @@ exports.handler = async (event) => {
             }
         }
 
-        // Remover asteriscos markdown que pudiera haber dejado la IA
+        // Remover asteriscos markdown y normalizar saltos de línea (\n, /n literales)
         const cleanStr = (str) => {
             if (!str) return '';
-            return str.replace(/\*\*/g, '').trim();
+            if (typeof str !== 'string') return String(str);
+            return str
+                .replace(/\*\*/g, '')
+                .replace(/\\r\\n/g, '\n')
+                .replace(/\\n/g, '\n')
+                .replace(/\/n/gi, '\n')
+                .split('\n')
+                .map(line => line.trim())
+                .filter(line => line.length > 0)
+                .join('\n')
+                .trim();
         };
 
         const doc = new Docxtemplater(zip, {

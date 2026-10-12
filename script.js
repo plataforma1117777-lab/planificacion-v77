@@ -410,7 +410,11 @@ async function generarPDC() {
                 body: JSON.stringify({ formData })
             });
             const adaptData = await adaptResponse.json();
-            pdcData.generatedContent.adaptaciones = adaptData.content || '';
+            let adaptContent = adaptData.content || '';
+            if (typeof adaptContent === 'string' && formData.categoriaAdaptacion === 'curricular') {
+                adaptContent = adaptContent.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n').replace(/\/n/gi, '\n');
+            }
+            pdcData.generatedContent.adaptaciones = adaptContent;
             log('Adaptaciones Curriculares procesadas internamente', 'ok');
         }
 

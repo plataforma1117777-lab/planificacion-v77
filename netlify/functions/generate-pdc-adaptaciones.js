@@ -57,7 +57,7 @@ INSTRUCCIONES OBLIGATORIAS:
 - Debes generar una lista de actividades de adaptaciones curriculares generales pertinentes para la condición indicada.
 - OBLIGATORIO: Debes generar como MÁXIMO 9 actividades (menos de 10 actividades en total). ¡Está ESTRICTAMENTE PROHIBIDO crear 10 o más actividades!
 - Cada actividad debe comenzar con un guion corto o viñeta.
-- Usa saltos de línea '\\n' para separar cada actividad en formato texto plano.
+- Separa cada actividad únicamente con un salto de línea normal (Enter). PROHIBIDO escribir literalmente los caracteres "\\n" o "/n".
 - Asegúrate de enfocar las adaptaciones estrictamente en los CONTENIDOS REGISTRADOS POR EL USUARIO indicados arriba. ¡Prohibido inventar temas nuevos!
 
 Si la condición está vacía o no es relevante, escribe solo: "No se requieren adaptaciones curriculares para el presente PDC."
@@ -92,7 +92,7 @@ Estructura requerida del JSON:
 }
 
 REGLAS DE FORMATO Y CONTENIDO (MOMENTOS FORMATIVOS):
-- Utiliza saltos de línea '\\n' para separar los elementos en formato de texto plano.
+- Utiliza saltos de línea normales (Enter) para separar los elementos en formato de texto plano. PROHIBIDO escribir textualmente los caracteres "\\n" o "/n".
 - Para cada semana, organiza las actividades adaptadas considerando los MOMENTOS DEL PROCESO FORMATIVO (PRÁCTICA, TEORÍA, VALORACIÓN Y PRODUCCIÓN).
 - Las actividades no deben ser genéricas: deben estar adaptadas ESPECÍFICAMENTE a las necesidades de la/s condición(es) y estar relacionadas con los contenidos de la semana respectiva.
 - Cada actividad o criterio debe comenzar con un guion corto o viñeta.
@@ -235,11 +235,27 @@ Responde ÚNICAMENTE con el objeto JSON válido. NO incluyas formato Markdown ni
             throw new Error(`Fallaron todas las API Keys después de varios ciclos. Último error: ${lastError?.message}`);
         }
 
+        let cleanContent = contentResponse
+            .replace(/```(json|markdown)/gi, '')
+            .replace(/```/g, '')
+            .trim();
+
+        if (esCurricular) {
+            cleanContent = cleanContent
+                .replace(/\\r\\n/g, '\n')
+                .replace(/\\n/g, '\n')
+                .replace(/\/n/gi, '\n')
+                .split('\n')
+                .map(l => l.trim())
+                .filter(l => l.length > 0)
+                .join('\n');
+        }
+
         return {
             statusCode: 200,
             headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
             body: JSON.stringify({
-                content: contentResponse.replace(/```(json|markdown)/gi, '').replace(/```/g, '').trim(),
+                content: cleanContent,
                 provider: providerUsed
             })
         };
